@@ -7,7 +7,7 @@ from data_processing import ReceivingRecords
 from data_processing import CleaningRecords
 from data_processing import SavingRecords
 from data_processing import *
-from strategies import WBTC_Triangular_Bot
+from strategies import Treway
 
 
 balances = []
@@ -138,17 +138,22 @@ async def on_receive(records: dict):
 
 async def bot_task():
     while True:
-        WBTC_Triangular_Bot.TriangularBot().main()
-        await asyncio.sleep(3)
+        Treway.TrewayBot().main()
+        print("No trades to perform. Sleeping for two minutes.")
+        await asyncio.sleep(120)
 
 async def main():
-    #c = DemexConnect().main()
-    #asyncio.get_event_loop().run_until_complete(await demex.connect(on_receive, on_connect))
+
+    #Create Websocket asyncio task
     socket = asyncio.create_task(demex.connect(on_receive, on_connect))
-    #bot = asyncio.create_task(bot_task())
+
+    #Create Treway Bot task via bot_task function
+    bot = asyncio.create_task(bot_task())
+
+    #Gather and run functions concurrently
     asyncio.gather(
                     asyncio.get_event_loop().run_until_complete(await socket),
-                    #asyncio.get_event_loop().run_until_complete(await bot)
+                    asyncio.get_event_loop().run_until_complete(await bot)
                     )
 
 
