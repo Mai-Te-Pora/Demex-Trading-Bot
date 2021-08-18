@@ -27,7 +27,19 @@ wbtc_usdc_15_minute = []
 #On successful connection
 async def on_connect():
     #candlestick granularity - allowed values: 1, 5, 15, 30, 60, 360, 1440
-    return await demex.subscribe("Subscription", [f"market_stats.{'market_stats'}", f"books.{'wbtc1_usdc1'}", f"books.{'eth1_wbtc1'}", f"books.{'cel_eth'}", f"books.{'cel1_usdc1'}", f"books.{'eth1_usdc1'}", f"books.{'swth_usdc1'}", f"books.{'swth_eth1'}", f"books.{'swth_busd1'}", f"candlesticks.{'swth_usdc1'}.{15}", f"balances.{''}", f"orders.{''}"])
+    return await demex.subscribe("Subscription", [
+                                                f"market_stats.{'market_stats'}", 
+                                                f"books.{'wbtc1_usdc1'}", 
+                                                f"books.{'eth1_wbtc1'}", 
+                                                f"books.{'cel_eth'}", 
+                                                f"books.{'cel1_usdc1'}", 
+                                                f"books.{'eth1_usdc1'}", 
+                                                f"books.{'swth_usdc1'}", 
+                                                f"books.{'swth_eth1'}", 
+                                                f"books.{'swth_busd1'}", 
+                                                f"candlesticks.{'swth_usdc1'}.{15}", 
+                                                f"balances.{'ENTER YOUR WALLET ADDRESS HERE'}", 
+                                                f"orders.{'ENTER YOUR WALLET ADDRESS HERE'}"])
 
 #Receiving feed from websocket
 async def on_receive(records: dict):
