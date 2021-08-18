@@ -13,6 +13,7 @@ from data_processing import SavingRecords
 
 class TrewayBot(object):
     def __init__(self):
+        self.loop = 0
         self.balances = []
         self.swth_usdc_orderbook = []
         self.swth_eth_orderbook = []
@@ -28,7 +29,6 @@ class TrewayBot(object):
         self.main()
 
     def analyze_records(self):
-        loop = 0
         p = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         #Read data in data_processing--storage
         try:
@@ -45,10 +45,10 @@ class TrewayBot(object):
             #beginning the trading bot? Please see assistance from github/c1im4cu5
             print("Failed to pull data. See Treway.py - def analyze_records")
 
-            if loop < 4:
+            if self.loop < 4:
                 time.sleep(5)
                 self.analyze_records()
-                loop += 1
+                self.loop += 1
             else:
                 print("Stopping Attempts at Connection")
 
@@ -165,9 +165,9 @@ class TrewayBot(object):
 
         if (total - su_max_sell_quantity) >= self.swth_min_quantity_extra:
             print("Trade Recommended (swth_usdc, eth_usdc, swth_eth)")
-            #self.dem_client.market_sell(pair='swth_usdc1', quantity=str(su_max_sell_quantity))
-            #self.dem_client.market_buy(pair='eth1_usdc1', quantity=str(eu_qty))
-            #self.dem_client.market_buy(pair='swth_eth1', quantity=str(total))
+            self.dem_client.market_sell(pair='swth_usdc1', quantity=str(su_max_sell_quantity))
+            self.dem_client.market_buy(pair='eth1_usdc1', quantity=str(eu_qty))
+            self.dem_client.market_buy(pair='swth_eth1', quantity=str(total))
             print("Trades Performed: Check Demex Log")
             print("Sleeping for ten minutes before restarting.")
             time.sleep(600)
@@ -184,9 +184,9 @@ class TrewayBot(object):
 
         if (eu_max_sell_quantity - su_qty) >= self.eth_min_quantity_extra:
             print("Trade Recommended (eth_usdc, swth_usdc, swth_eth)")
-            #self.dem_client.market_sell(pair='eth1_usdc1', quantity=str(eu_max_sell_quantity))
-            #self.dem_client.market_buy(pair='swth_usdc1', quantity=str(su_qty))
-            #self.dem_client.market_sell(pair='swth_eth1', quantity=str(su_qty))
+            self.dem_client.market_sell(pair='eth1_usdc1', quantity=str(eu_max_sell_quantity))
+            self.dem_client.market_buy(pair='swth_usdc1', quantity=str(su_qty))
+            self.dem_client.market_sell(pair='swth_eth1', quantity=str(su_qty))
             print("Trades Performed: Check Demex Log")
             print("Sleeping for ten minutes before restarting.")
             time.sleep(600)
@@ -202,20 +202,16 @@ class TrewayBot(object):
 
         if (total - su_max_sell_quantity) >= self.eth_min_quantity_extra:
             print("Trade Recommended (swth_eth, eth_usdc, swth_usdc)")
-            #self.dem_client.market_sell(pair='swth_eth1', quantity=str(su_max_sell_quantity))
-            #self.dem_client.market_sell(pair='eth1_usdc1', quantity=str(eu_qty))
-            #self.dem_client.market_buy(pair='swth_usdc1', quantity=str(total))
+            self.dem_client.market_sell(pair='swth_eth1', quantity=str(su_max_sell_quantity))
+            self.dem_client.market_sell(pair='eth1_usdc1', quantity=str(eu_qty))
+            self.dem_client.market_buy(pair='swth_usdc1', quantity=str(total))
             print("Trades Performed: Check Demex Log")
             print("Sleeping for ten minutes before restarting.")
-            time.sleep(600)
+            time.sleep(480)
             self.main()
         else:
             print("NO Trade Recommended (swth_eth, eth_usdc, swth_usdc)")
         #print('{0:.10f}'.format(se_fpb))
-
-        print("No Trades to Perform. Sleeping for two minutes.")
-        time.sleep(120)
-        self.main()
 
 if __name__ == "__main__":
     objName = TrewayBot().main()
