@@ -1,4 +1,6 @@
-# Demex-Batter-Bot
+# Demex-Trading-Bot
+
+Batter
 
 Welcome to the Demex Exchange Batter Bot!
 
