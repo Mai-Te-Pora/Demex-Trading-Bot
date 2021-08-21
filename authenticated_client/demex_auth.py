@@ -1,6 +1,4 @@
 from tradehub.demex_client import DemexClient
-from tradehub.authenticated_client import AuthenticatedClient
-from tradehub.wallet import Wallet
 
 def main():
     mnemonic='ENTER YOUR MNEMONIC HERE FOR CONNECTION TO DEMEX EXCHANGE'
