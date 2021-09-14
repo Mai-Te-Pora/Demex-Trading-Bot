@@ -1,8 +1,6 @@
 # Demex-Trading-Bot
 
-Batter
-
-Welcome to the Demex Exchange Batter Bot!
+Welcome to the Demex Exchange Trading Bot!
 
 The bot is designed to trade with concurrent access to strategies and websocket data. Because the bot is still in development, there may be missing storage files for trading pairs and candlesticks.  It can still be run from terminal with minimal changes to code.
 
@@ -21,4 +19,4 @@ Alter mnemonic phrase
 
 Running Main File:
 
-Treway strategy is already setup to run from the main file as a separate asyncio function. Each bot can be created as a separate function, added to the main function as an asyncio task and gathered for concurrency.
+Treway strategy is already setup (Please check math) to run from the main file as a separate asyncio function. Each bot can be created as a separate function, added to the main function as an asyncio task and gathered for concurrency.
