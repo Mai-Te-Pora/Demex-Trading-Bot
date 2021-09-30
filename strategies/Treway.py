@@ -5,7 +5,7 @@ import itertools
 import asyncio
 import time
 
-import os, sys
+import os, sys, logging
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from authenticated_client import demex_auth
 from data_processing import SavingRecords
@@ -13,6 +13,16 @@ from data_processing import SavingRecords
 
 class TrewayBot(object):
     def __init__(self):
+        #Setting up logger
+        root = logging.getLogger()
+        root.setLevel(logging.INFO)
+
+        handler = logging.StreamHandler(sys.stdout)
+        handler.setLevel(logging.INFO)
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        handler.setFormatter(formatter)
+        root.addHandler(handler)
+        
         self.loop = 0
         self.balances = []
         self.swth_usdc_orderbook = []
@@ -43,15 +53,16 @@ class TrewayBot(object):
         except:
             #For whatever reason the documents failed to load. Did you run DemexWebsocketClass.py for a minute or two before
             #beginning the trading bot? Please see assistance from github/c1im4cu5
-            print("Failed to pull data. See Treway.py - def analyze_records")
+            root.warning("Failed to pull data. See Treway.py - def analyze_records")
 
             if self.loop < 4:
                 time.sleep(5)
                 self.analyze_records()
                 self.loop += 1
             else:
-                print("Stopping Attempts at Connection")
-
+                root.error("Stopping Attempts at Connection")
+                sys.exit()
+                
     def swth_usdc_data(self):
 
         buys = []
@@ -164,16 +175,16 @@ class TrewayBot(object):
         total = round(eu_qty/se_fps)
 
         if (total - su_max_sell_quantity) >= self.swth_min_quantity_extra:
-            print("Trade Recommended (swth_usdc, eth_usdc, swth_eth)")
+            root.info("Trade Recommended (swth_usdc, eth_usdc, swth_eth)")
             self.dem_client.market_sell(pair='swth_usdc1', quantity=str(su_max_sell_quantity))
             self.dem_client.market_buy(pair='eth1_usdc1', quantity=str(eu_qty))
             self.dem_client.market_buy(pair='swth_eth1', quantity=str(total))
-            print("Trades Performed: Check Demex Log")
-            print("Sleeping for ten minutes before restarting.")
+            root.info("Trades Performed: Check Demex Log")
+            root.info("Sleeping for ten minutes before restarting.")
             time.sleep(600)
             self.main()
         else:
-            print("NO Trade Recommended (swth_usdc, eth_usdc, swth_eth)")
+            root.info("NO Trade Recommended (swth_usdc, eth_usdc, swth_eth)")
 
         #Prices paid for paying and selling into asks/bids to acquire more swth (sell eth_usdc, buy swth_usdc, sell swth_eth )
         usdc_one = round(eu_max_sell_quantity*eu_spb, 2)
@@ -183,12 +194,12 @@ class TrewayBot(object):
 
 
         if (eu_max_sell_quantity - su_qty) >= self.eth_min_quantity_extra:
-            print("Trade Recommended (eth_usdc, swth_usdc, swth_eth)")
+            root.info("Trade Recommended (eth_usdc, swth_usdc, swth_eth)")
             self.dem_client.market_sell(pair='eth1_usdc1', quantity=str(eu_max_sell_quantity))
             self.dem_client.market_buy(pair='swth_usdc1', quantity=str(su_qty))
             self.dem_client.market_sell(pair='swth_eth1', quantity=str(su_qty))
-            print("Trades Performed: Check Demex Log")
-            print("Sleeping for ten minutes before restarting.")
+            root.info("Trades Performed: Check Demex Log")
+            root.info("Sleeping for ten minutes before restarting.")
             time.sleep(600)
             self.main()
         else:
@@ -201,16 +212,16 @@ class TrewayBot(object):
 
 
         if (total - su_max_sell_quantity) >= self.eth_min_quantity_extra:
-            print("Trade Recommended (swth_eth, eth_usdc, swth_usdc)")
+            root.info("Trade Recommended (swth_eth, eth_usdc, swth_usdc)")
             self.dem_client.market_sell(pair='swth_eth1', quantity=str(su_max_sell_quantity))
             self.dem_client.market_sell(pair='eth1_usdc1', quantity=str(eu_qty))
             self.dem_client.market_buy(pair='swth_usdc1', quantity=str(total))
-            print("Trades Performed: Check Demex Log")
-            print("Sleeping for ten minutes before restarting.")
-            time.sleep(480)
+            root.info("Trades Performed: Check Demex Log")
+            root.info("Sleeping for ten minutes before restarting.")
+            time.sleep(600)
             self.main()
         else:
-            print("NO Trade Recommended (swth_eth, eth_usdc, swth_usdc)")
+            root.info("NO Trade Recommended (swth_eth, eth_usdc, swth_usdc)")
         #print('{0:.10f}'.format(se_fpb))
 
 if __name__ == "__main__":
