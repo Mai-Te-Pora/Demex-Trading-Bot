@@ -19,4 +19,6 @@ Alter mnemonic phrase
 
 Running Main File:
 
-Treway strategy is already setup (Please check math) to run from the main file as a separate asyncio function. Each bot can be created as a separate function, added to the main function as an asyncio task and gathered for concurrency.
+Treway strategy is already setup (Please check math) to run from the main file as a separate asyncio function. Each bot can be created as a separate function, added to the main function as an asyncio task and gathered for concurrency.<br>
+
+Please note that certain strategies may implement more required Python libraries.
