@@ -1,3 +1,14 @@
+import sys, os, logging
+
+#Setting up logger
+root = logging.getLogger()
+root.setLevel(logging.INFO)
+handler = logging.StreamHandler(sys.stdout)
+handler.setLevel(logging.INFO)
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+handler.setFormatter(formatter)
+root.addHandler(handler)
+
 def balances(records):
     balance_dict = {}
     if 'channel' in records:
@@ -8,7 +19,7 @@ def balances(records):
                 try:
                     balance_dict = records['result']
                 except:
-                    print("Balance = Zero for All Tokens")
+                    root.info("Balance = Zero for All Tokens")
     return balance_dict
 
 def market_stats(records):
@@ -27,7 +38,7 @@ def orders(records):
             try:
                 orders_dict = records['result']
             except:
-                print("No Active Orders")
+                root.info("No Active Orders")
 
     return orders_dict
 
