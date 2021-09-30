@@ -17,7 +17,8 @@ Go to authenticated_client\demex_auth.py
 
 Alter mnemonic phrase
 
-Running Main File:
+Running Main File in Parent Folder:<br>
+python main.py (or python3 depending on miniconda3 downlaod)<br>
 
 Treway strategy is already setup (Please check math) to run from the main file as a separate asyncio function. Each bot can be created as a separate function, added to the main function as an asyncio task and gathered for concurrency.<br>
 
