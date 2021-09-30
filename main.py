@@ -1,7 +1,7 @@
 from tradehub.websocket_client import DemexWebsocket
 import asyncio
 
-import sys, os
+import sys, os, logging
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from data_processing import ReceivingRecords
 from data_processing import CleaningRecords
@@ -23,6 +23,16 @@ eth_wbtc = []
 wbtc_usdc = []
 
 wbtc_usdc_15_minute = []
+
+#Setting up logger
+root = logging.getLogger()
+root.setLevel(logging.INFO)
+#Setting handler, formatting text for print on terminal
+handler = logging.StreamHandler(sys.stdout)
+handler.setLevel(logging.INFO)
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+handler.setFormatter(formatter)
+root.addHandler(handler)
 
 #On successful connection
 async def on_connect():
@@ -151,7 +161,7 @@ async def on_receive(records: dict):
 async def bot_task():
     while True:
         Treway.TrewayBot().main()
-        print("No trades to perform. Sleeping for two minutes.")
+        root.info("No trades to perform. Sleeping for two minutes.")
         await asyncio.sleep(120)
 
 async def main():
