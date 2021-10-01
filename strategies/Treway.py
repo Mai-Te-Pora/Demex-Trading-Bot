@@ -24,7 +24,6 @@ class TrewayBot(object):
         self.root.addHandler(self.handler)
         
         self.loop = 0
-        self.balances = []
         self.swth_usdc_orderbook = []
         self.swth_eth_orderbook = []
         self.eth_usdc_orderbook = []
@@ -48,8 +47,6 @@ class TrewayBot(object):
                 self.swth_eth_orderbook = json.load(read_file)
             with open(p + r"./data_processing/storage/orderbooks/eth_usdc_orderbook.json", "r") as read_file:
                 self.eth_usdc_orderbook = json.load(read_file)
-            with open(p + r"./data_processing/storage/balances/balances.json", "r") as read_file:
-                self.balances = json.load(read_file)
         except:
             #For whatever reason the documents failed to load. Did you run DemexWebsocketClass.py for a minute or two before
             #beginning the trading bot? Please see assistance from github/c1im4cu5
