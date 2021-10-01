@@ -14,14 +14,14 @@ from data_processing import SavingRecords
 class TrewayBot(object):
     def __init__(self):
         #Setting up logger
-        root = logging.getLogger()
-        root.setLevel(logging.INFO)
+        self.root = logging.getLogger()
+        self.root.setLevel(logging.INFO)
 
-        handler = logging.StreamHandler(sys.stdout)
-        handler.setLevel(logging.INFO)
-        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-        handler.setFormatter(formatter)
-        root.addHandler(handler)
+        self.handler = logging.StreamHandler(sys.stdout)
+        self.handler.setLevel(logging.INFO)
+        self.formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        self.handler.setFormatter(self.formatter)
+        self.root.addHandler(self.handler)
         
         self.loop = 0
         self.balances = []
@@ -179,12 +179,12 @@ class TrewayBot(object):
             self.dem_client.market_sell(pair='swth_usdc1', quantity=str(su_max_sell_quantity))
             self.dem_client.market_buy(pair='eth1_usdc1', quantity=str(eu_qty))
             self.dem_client.market_buy(pair='swth_eth1', quantity=str(total))
-            root.info("Trades Performed: Check Demex Log")
-            root.info("Sleeping for ten minutes before restarting.")
+            self.root.info("Trades Performed: Check Demex Log")
+            self.root.info("Sleeping for ten minutes before restarting.")
             time.sleep(600)
             self.main()
         else:
-            root.info("NO Trade Recommended (swth_usdc, eth_usdc, swth_eth)")
+            self.root.info("NO Trade Recommended (swth_usdc, eth_usdc, swth_eth)")
 
         #Prices paid for paying and selling into asks/bids to acquire more swth (sell eth_usdc, buy swth_usdc, sell swth_eth )
         usdc_one = round(eu_max_sell_quantity*eu_spb, 2)
@@ -194,16 +194,16 @@ class TrewayBot(object):
 
 
         if (eu_max_sell_quantity - su_qty) >= self.eth_min_quantity_extra:
-            root.info("Trade Recommended (eth_usdc, swth_usdc, swth_eth)")
+            self.root.info("Trade Recommended (eth_usdc, swth_usdc, swth_eth)")
             self.dem_client.market_sell(pair='eth1_usdc1', quantity=str(eu_max_sell_quantity))
             self.dem_client.market_buy(pair='swth_usdc1', quantity=str(su_qty))
             self.dem_client.market_sell(pair='swth_eth1', quantity=str(su_qty))
-            root.info("Trades Performed: Check Demex Log")
-            root.info("Sleeping for ten minutes before restarting.")
+            self.root.info("Trades Performed: Check Demex Log")
+            self.root.info("Sleeping for ten minutes before restarting.")
             time.sleep(600)
             self.main()
         else:
-            print("NO Trade Recommended (eth_usdc, swth_usdc, swth_eth)")
+            self.root.info("NO Trade Recommended (eth_usdc, swth_usdc, swth_eth)")
 
         #Prices paid for paying and selling into asks/bids to acquire more swth (swth_eth, eth_usdc, swth_usdc)
         eu_qty = round(su_max_sell_quantity*se_fpb, 3)
@@ -216,12 +216,12 @@ class TrewayBot(object):
             self.dem_client.market_sell(pair='swth_eth1', quantity=str(su_max_sell_quantity))
             self.dem_client.market_sell(pair='eth1_usdc1', quantity=str(eu_qty))
             self.dem_client.market_buy(pair='swth_usdc1', quantity=str(total))
-            root.info("Trades Performed: Check Demex Log")
-            root.info("Sleeping for ten minutes before restarting.")
+            self.root.info("Trades Performed: Check Demex Log")
+            self.root.info("Sleeping for ten minutes before restarting.")
             time.sleep(600)
             self.main()
         else:
-            root.info("NO Trade Recommended (swth_eth, eth_usdc, swth_usdc)")
+            self.root.info("NO Trade Recommended (swth_eth, eth_usdc, swth_usdc)")
         #print('{0:.10f}'.format(se_fpb))
 
 if __name__ == "__main__":
