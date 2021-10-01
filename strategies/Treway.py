@@ -33,7 +33,7 @@ class TrewayBot(object):
 
         self.swth_min_quantity_extra = 180
         self.eth_min_quantity_extra = .0025
-        self.dem_client = demex_auth.main()
+        self.dem_client = demex_auth.dem_client()
 
     def __call__(self):
         self.main()
