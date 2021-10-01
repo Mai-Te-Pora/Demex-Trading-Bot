@@ -53,14 +53,14 @@ class TrewayBot(object):
         except:
             #For whatever reason the documents failed to load. Did you run DemexWebsocketClass.py for a minute or two before
             #beginning the trading bot? Please see assistance from github/c1im4cu5
-            root.warning("Failed to pull data. See Treway.py - def analyze_records")
+            self.root.warning("Failed to pull data. See Treway.py - def analyze_records")
 
             if self.loop < 4:
                 time.sleep(5)
                 self.analyze_records()
                 self.loop += 1
             else:
-                root.error("Stopping Attempts at Connection")
+                self.root.error("Stopping Attempts at Connection")
                 sys.exit()
                 
     def swth_usdc_data(self):
