@@ -11,11 +11,10 @@ Recommended: Miniconda3<br>
 Strategies Section:
 The strategies section is developed with the intent to add more strategies for users of the exchange.  Currently in development, market making bot, Gann predictive intraday strategy and more predictive algorithms based on further building of pair candlestick storage files.
 
-Setup Authenticated Client:
-
-Go to authenticated_client\demex_auth.py
-
-Alter mnemonic phrase
+Setup Authenticated Client:<br>
+Go to authenticated_client\demex_auth.py<br>
+Alter mnemonic phrase<br>
+You will also need to alter on_connect function in main.py. If you'd like to set the websocket to acquire address balances and orders, please apply your SWTH address to the subscription lines for balances and orders.<br>
 
 Running Main File in Parent Folder:<br>
 python main.py (or python3 depending on miniconda3 downlaod)<br>
