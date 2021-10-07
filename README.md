@@ -6,7 +6,7 @@ The bot is designed to trade with concurrent access to strategies and websocket 
 
 Required: Python 3.8 + <br>
 Required: Tradehub (Install via pip tradehub)<br>
-Note: Tradehub will require Visual Studio Built Tools<br>
+Note: Tradehub will require Visual Studio Build Tools<br>
 Recommended: Miniconda3<br>
 
 Strategies Section:
