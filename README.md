@@ -21,5 +21,10 @@ Running Main File in Parent Folder:<br>
 python main.py (or python3 depending on miniconda3 downlaod)<br>
 
 Treway strategy is already setup (Please check math) to run from the main file as a separate asyncio function. Each bot can be created as a separate function, added to the main function as an asyncio task and gathered for concurrency.<br>
+Note about Treway: It is currently disabled in code.<br>
+
+The Grid Bot/ MM strategy is set to run upon immediate download. A user will need to change the mnemonic (as stated above) and input their Carbon address (Beginning with "swth") into the main.py file. <br>
+Notes about Grid Strategy: <br>
+Pairs MUST be typed exactly! Users are given a list for reference. 
 
 Please note that certain strategies may implement more required Python libraries.
