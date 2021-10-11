@@ -1,6 +1,5 @@
 import json
 import itertools
-import asyncio
 import time
 import ast
 import tradehub.types as types
