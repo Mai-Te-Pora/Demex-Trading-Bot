@@ -25,7 +25,8 @@ Note about Treway: It is currently disabled in code.<br>
 
 The Grid Bot/ MM strategy is set to run upon immediate download. A user will need to change the mnemonic (as stated above) and input their Carbon address (Beginning with "swth") into the main.py file. <br>
 Notes about Grid Strategy: <br>
-Pairs MUST be typed exactly! Users are given a list for reference. <br>
+Pairs MUST be typed exactly! Users are given a list for reference.<br>
+Order quantities should always possess the ones digit (0.01)<br>
 The bot will continue replicating the designated orders until stopped <br>
 
 Please note that certain strategies may implement more required Python libraries.
