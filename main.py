@@ -8,6 +8,7 @@ from data_processing import CleaningRecords
 from data_processing import SavingRecords
 from data_processing import *
 from strategies import Treway
+from strategies import Grid
 
 
 balances = []
@@ -39,16 +40,16 @@ async def on_connect():
     #candlestick granularity - allowed values: 1, 5, 15, 30, 60, 360, 1440
     return await demex.subscribe("Subscription", [
                                                 f"market_stats.{'market_stats'}", 
-                                                f"books.{'wbtc1_usdc1'}", 
-                                                f"books.{'eth1_wbtc1'}", 
-                                                f"books.{'cel_eth'}", 
-                                                f"books.{'cel1_usdc1'}", 
-                                                f"books.{'eth1_usdc1'}", 
-                                                f"books.{'swth_usdc1'}", 
-                                                f"books.{'swth_eth1'}", 
-                                                f"books.{'swth_busd1'}", 
-                                                f"candlesticks.{'swth_usdc1'}.{15}", 
-                                                f"balances.{'ENTER YOUR WALLET ADDRESS HERE'}", 
+                                                #f"books.{'wbtc1_usdc1'}", 
+                                                #f"books.{'eth1_wbtc1'}", 
+                                                #f"books.{'cel_eth'}", 
+                                                #f"books.{'cel1_usdc1'}", 
+                                                #f"books.{'eth1_usdc1'}", 
+                                                #f"books.{'swth_usdc1'}", 
+                                                #f"books.{'swth_eth1'}", 
+                                                #f"books.{'swth_busd1'}", 
+                                                #f"candlesticks.{'swth_usdc1'}.{15}", 
+                                                #f"balances.{'ENTER YOUR WALLET ADDRESS HERE'}", 
                                                 f"orders.{'ENTER YOUR WALLET ADDRESS HERE'}"])
 
 #Receiving feed from websocket
@@ -66,12 +67,11 @@ async def on_receive(records: dict):
         #Wallet Orders
         #Check if orders in record
         if 'orders.' in records['channel']:
-            pass
-            #Send data to ordes def in ReceivingRecords
-            """orders.extend(ReceivingRecords.data_receiving.orders(records))
-            #Send data to cleaning_orders def in CleaningRecords for accurate wallet orders (Small issues persist with clean)
-            CleaningRecords.data_cleaning.cleaning_orders(orders)
-            SavingRecords.saving_records.save_wallet_orders(orders)"""
+            #Monitoring incoming orders against pre-built user defined grid bot orders
+            Grid.GridBot().monitor_limit_orders(records)
+            print("Active Orders Updated")
+            print("Websocket will stay active without printing status until next order update.")
+
 
         #Market Statistics
         if 'market_stats' in records['channel']:
@@ -147,35 +147,27 @@ async def on_receive(records: dict):
             #Send to function for saving file
             SavingRecords.save_wbtc_usdc_orderbook(wbtc_usdc)
 
-        #Fifteen Minute Candles
-        #Check if wbtc_usdc books are in the "channel"
-        if 'candlesticks.swth_usdc1' in records['channel']:
-            #Send data to Receiving records, return back list of dicts; which are extended with updates
-            """wbtc_usdc_15_minute.extend(ReceivingRecords.wbtc_usdc_book(records))
-            #Clean the records
-            CleaningRecords.cleaning_orderbooks(wbtc_usdc)
-            #Send to function for saving file
-            SavingRecords.save_wbtc_usdc_orderbook(wbtc_usdc)"""
-            print("WBTC Candlestick was received!!!!!!!!!!!!!!!!!!!!")
-
 async def bot_task():
     while True:
         Treway.TrewayBot().main()
-        root.info("No trades to perform. Sleeping for two minutes.")
+        print("No trades to perform. Sleeping for two minutes.")
         await asyncio.sleep(120)
 
 async def main():
+    #Gathering user orders
+    orders = Grid.GridBot().create_limit_orders()
 
     #Create Websocket asyncio task
     socket = asyncio.create_task(demex.connect(on_receive, on_connect))
 
     #Create Treway Bot task via bot_task function
-    bot = asyncio.create_task(bot_task())
+    #Blocking out Treway bot creation from usage - Please unblock if you'd like to utilize the strategy
+    #bot = asyncio.create_task(bot_task())
 
     #Gather and run functions concurrently
     asyncio.gather(
                     asyncio.get_event_loop().run_until_complete(await socket),
-                    asyncio.get_event_loop().run_until_complete(await bot)
+                    #asyncio.get_event_loop().run_until_complete(await bot)
                     )
 
 
