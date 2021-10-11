@@ -41,14 +41,14 @@ class GridBot(object):
         qty = float(input("Quantity: "))
         side = input("Is this a buy or sell order (buy or sell): ")
         if side == 'buy':
-            buy_price = input("Buy Price (Note: You cannot place an order over 100x last price. [See notes on Maitepora about orderbook or contact c1im4cu5 on github]): ")
+            buy_price = input("Buy Price: ")
             buy_price = str(buy_price)
             sell_price = input("Sell Price: ")
             sell_price = str(sell_price)
         elif side == 'sell':
             sell_price = input("Sell Price: ")
             sell_price = str(sell_price)
-            buy_price = input("Buy Price (Note: You cannot place an order 100x. [See notes on Maitepora about orderbook or contact c1im4cu5 on github]): ")
+            buy_price = input("Buy Price: ")
             buy_price = str(buy_price)
         #profit = input("Profit in base token or quote token (base or quote): ")
         profit = 'base'
