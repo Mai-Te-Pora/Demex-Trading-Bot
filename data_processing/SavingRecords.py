@@ -61,3 +61,8 @@ def save_market_stats(books):
     p = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     with open(p + '/data_processing/storage/marketStats/market_stats.json', 'w') as fout:
         json.dump(books , fout)
+        
+def save_active_orders(books):
+    p = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    with open(p + '/data_processing/logs/active_orders.json', 'w') as fout:
+        json.dump(books , fout)
