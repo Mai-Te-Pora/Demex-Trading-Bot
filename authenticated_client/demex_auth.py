@@ -22,3 +22,13 @@ def auth_client():
 def p_client():
     pc = PublicClient(network='mainnet', trusted_uris=["http://54.255.5.46:5001", "http://175.41.151.35:5001"])
     return pc
+
+def rtn_address():
+    w = Wallet(mnemonic= mnemonic,
+       network='mainnet')
+
+    pk = w.mnemonic_to_private_key(mnemonic_phrase=mnemonic)
+    pub_k = w.private_key_to_public_key(private_key=pk)
+    address = w.public_key_to_address(public_key= pub_k,
+                                  hrp=None)
+    return address
