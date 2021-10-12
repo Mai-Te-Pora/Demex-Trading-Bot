@@ -9,8 +9,10 @@ from data_processing import SavingRecords
 from data_processing import *
 from strategies import Treway
 from strategies import Grid
+from authenticated_client import demex_auth
 
 
+address = demex_auth.rtn_address()
 balances = []
 orders = []
 market_stats = []
@@ -35,6 +37,19 @@ formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(messag
 handler.setFormatter(formatter)
 root.addHandler(handler)
 
+#On Error - Websocket loses connection (for whatever reason)
+#All orders from Grid bot will be canceled
+async def on_error():
+    print("Websocket connection has been terminated")
+    try:
+        print("Canceling all active user orders")
+        CancelOrders.cancel_active_orders()
+        print("Orders Canceled. Please check Carbon (or Demex) for confirmation of cancelations.")
+    except:
+        print("Unable to cancel orders. Please check Carbon (or Demex) immediately!!!!!!!!!!!!")
+        print("System exiting")
+        sys.exit()
+
 #On successful connection
 async def on_connect():
     #candlestick granularity - allowed values: 1, 5, 15, 30, 60, 360, 1440
@@ -49,8 +64,8 @@ async def on_connect():
                                                 #f"books.{'swth_eth1'}", 
                                                 #f"books.{'swth_busd1'}", 
                                                 #f"candlesticks.{'swth_usdc1'}.{15}", 
-                                                #f"balances.{'ENTER YOUR WALLET ADDRESS HERE'}", 
-                                                f"orders.{'ENTER YOUR WALLET ADDRESS HERE'}"])
+                                                #f"balances.{address}", 
+                                                f"orders.{address}"])
 
 #Receiving feed from websocket
 async def on_receive(records: dict):
@@ -158,7 +173,7 @@ async def main():
     orders = Grid.GridBot().create_limit_orders()
 
     #Create Websocket asyncio task
-    socket = asyncio.create_task(demex.connect(on_receive, on_connect))
+    socket = asyncio.create_task(demex.connect(on_receive, on_connect, on_error))
 
     #Create Treway Bot task via bot_task function
     #Blocking out Treway bot creation from usage - Please unblock if you'd like to utilize the strategy
