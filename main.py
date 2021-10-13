@@ -174,7 +174,7 @@ async def main():
     SavingRecords.save_active_orders(orders)
 
     #Create Websocket asyncio task
-    socket = asyncio.create_task(demex.connect(on_receive, on_connect, on_error))
+    socket = asyncio.create_task(demex.connect(on_receive, on_connect))
 
     #Create Treway Bot task via bot_task function
     #Blocking out Treway bot creation from usage - Please unblock if you'd like to utilize the strategy
