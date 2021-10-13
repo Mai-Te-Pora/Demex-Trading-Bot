@@ -171,6 +171,7 @@ async def bot_task():
 async def main():
     #Gathering user orders
     orders = Grid.GridBot().create_limit_orders()
+    SavingRecords.save_active_orders(orders)
 
     #Create Websocket asyncio task
     socket = asyncio.create_task(demex.connect(on_receive, on_connect, on_error))
