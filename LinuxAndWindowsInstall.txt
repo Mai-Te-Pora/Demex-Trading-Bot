@@ -1,0 +1,41 @@
+NOTE FOR WINDOWS USERS:
+Windows 10 will allow you to run Linux command line on a separate terminal window by installing WSL; which can be found in the Microsoft App store (Preferred Ubuntu 18.04).
+More install information can be found @ https://answers.microsoft.com/en-us/insider/forum/all/how-to-enable-the-windows-subsystem-for-linux/16e8f2e8-4a6a-4325-a89a-fd28c7841775
+
+
+#Linux Command Line Install Instructions:
+#If you're having any troubles setting up Python (or already possess a prior python version, please go to the following link for assistance in installing a new version)
+#https://tech.serhatteker.com/post/2019-12/upgrade-python38-on-ubuntu/
+sudo apt-get install update 
+sudo apt-get install python3.8
+sudo apt-get install python3-pip
+sudo apt-get install python3.8-dev
+
+#Install tradehub
+pip3 install tradehub
+
+#Download github repository
+#ONLY DOWNLOAD FROM TRUSTED SITE - https://github.com/Mai-Te-Pora
+git clone https://github.com/Mai-Te-Pora/Demex-Trading-Bot
+
+#Navigate to Demex-Bot dir
+cd Demex-Trading-Bot
+
+#Navigate to authenticated client folder to alter mnemonic
+cd authenticated_client
+
+#Open python file to alter mnemonic
+#Note performing this line of code will open a text editor in the terminal window. You will need to change the section of the document that looks like this:
+#mnemonic='ENTER YOUR MNEMONIC HERE FOR CONNECTION TO TRADEHUB'
+#You will want to enter your mnemonic with spaces between the parenthesis
+#After alterations, please make sure to save it!
+nano demex_auth.py
+
+#Move back to main dir
+cd
+
+#Navigate back to Demex-Dir
+cd Demex-Trading-Bot
+
+#Run Bot
+python3 main.py
