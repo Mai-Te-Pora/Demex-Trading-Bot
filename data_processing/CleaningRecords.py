@@ -1,49 +1,38 @@
 def cleaning_orderbooks(books):
-    #Turn all prices and quantity into floats for calculation
-    for i in range(len(books)):
-        if books[i]['price']:
-            books[i]['price'] = float(books[i]['price'])
-        if books[i]['quantity']:
-            books[i]['quantity'] = float(books[i]['quantity'])
-        if books[i]['type'] == "delete":
-            s = books[i]['side']
-            p = books[i]['price']
-            del i
-
-    #Side, price and quantity holding variables for deletion
+    #Side, price and quantity holding variables for updating
     s = ''
     p = 0
     q = 0
     q = 0
-    new_record = []
-    #Document as much provided information (side and price) prior to deletion from list
-    #Monitor for "id" or some other way to accurately delete existing order
-    for i,e in enumerate(list(books)):
-        if e['type'] == "delete":
-            s = e['side']
-            p = e['price']
-            del books[books.index(e)]
-            new_record = books
-            for d, k in enumerate(list(new_record)):
-                if  k['type'] == 'new':
-                    if k['side'] == s:
-                        if k['price'] == p:
-                            del new_record[new_record.index(k)]
-                            books = new_record
-        elif e['type'] == "update":
-            s = e['side']
-            p = e['price']
-            q = e['quantity']
-            del books[books.index(e)]
-            new_record = books
-            for d, k in enumerate(list(new_record)):
-                if  k['type'] == 'new':
-                    if k['side'] == s:
-                        if k['price'] == p:
-                            k['quantity'] = k['quantity'] + float(q)
-                            books = new_record
-        print(books)
-        return books
+    ls = []
+
+    #Adjust quantities on update message
+    for i, d in enumerate(books):
+        if d['type'] == 'update':
+            s = d['side']
+            p = d['price']
+            ls = books
+            for y, z in enumerate(ls):
+                if z['type'] == 'new':
+                    if z['side'] == s:
+                        if z['price'] == p:
+                            z['quantity'] = float(z['quantity']) + float(q)
+                            books = ls
+    #Delete update message
+    books = list(filter(lambda i: i['type'] != 'update', books))
+
+    #Filter for delete messages and place in new list
+    ls = list(filter(lambda i: i['type'] == 'delete', books))
+
+    #Turn filtered delete type to new for next filter
+    for i, d in enumerate(ls):
+        d['type'] = 'new'
+
+    #Filter duplicate from books and ls
+    books = [d for d in books if d not in ls ]
+    
+    print(books)
+    return books
 
 def cleaning_orders(books):
     #Order Status = Pending, Cancelled
