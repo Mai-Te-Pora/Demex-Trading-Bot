@@ -18,20 +18,22 @@ def cleaning_orderbooks(books):
                         if z['price'] == p:
                             z['quantity'] = float(z['quantity']) + float(q)
                             books = ls
-    #Delete update message
-    books = list(filter(lambda i: i['type'] != 'update', books))
+                            
+    #Register new messages with same price as delete message
+    for i, d in enumerate(books):
+        if d['type'] == 'delete':
+            s = d['side']
+            p = d['price']
+            ls = books
+            for y, z in enumerate(ls):
+                if z['type'] == 'new':
+                    if z['side'] == s:
+                        if z['price'] == p:
+                            z['type'] = 'delete'
+                            books = ls
 
-    #Filter for delete messages and place in new list
-    ls = list(filter(lambda i: i['type'] == 'delete', books))
-
-    #Turn filtered delete type to new for next filter
-    for i, d in enumerate(ls):
-        d['type'] = 'new'
-
-    #Filter duplicate from books and ls
-    books = [d for d in books if d not in ls ]
+    books = list(filter(lambda i: i['type'] != 'delete', books))
     
-    print(books)
     return books
 
 def cleaning_orders(books):
