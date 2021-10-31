@@ -4,7 +4,7 @@ Welcome to the Demex Exchange Trading Bot!
 
 The bot is designed to trade with asychronous access to strategies and websocket data. Because the bot is still in development, there may be missing storage files for trading pairs and candlesticks.  It can still be run from terminal with minimal changes to code.
 
-## Installation
+## Install Tradehub (Carbon)
 Required: Python 3.8 + <br>
 Use Package Manager pip to install tradehub
 ```
