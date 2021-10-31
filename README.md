@@ -40,4 +40,4 @@ c1im4cu5 is working with a couple others to add strategies to the main bot. Thes
 You are invited to partake. Please feel free to join the Mai-Te-Pora Telegram community!
 
 ## Contributing
-Pull requests are welcome. For major changes, please open an issue for first to discuss what you would like added.
+Pull requests are welcome. For major changes, please open an issue first to discuss what you'd like to added/altered.
