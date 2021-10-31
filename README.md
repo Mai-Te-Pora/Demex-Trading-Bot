@@ -69,6 +69,7 @@ Grid is available to run upon immediate download (provided mnemonic has been alt
 - Buy or Sell
 - Buy/Sell Price
 - Buy/Sell Price
+
 The bot will continue repeating the trades until cancelled. There are expected enhancements to the bot coming in the future.
 
 ## Enhancements
