@@ -13,9 +13,8 @@ pip install tradehub
 Please see WindowsAndLinuxInstall document for more details.
 
 ## Setup Authenticated Client
--Go to authenticated_client\demex_auth.py
--Alter mnemonic phrase<br>
-You will also need to alter on_connect function in main.py. If you'd like to set the websocket to acquire address balances and orders, please apply your SWTH address to the subscription lines for balances and orders.<br>
+- Go to authenticated_client\demex_auth.py
+- Alter mnemonic phrase
 
 ## Strategies Section:
 The strategies section is developed with the intent to add more strategies for users of the exchange.  Currently in development, market making bot, Gann predictive intraday strategy and more predictive algorithms based on further building of pair candlestick storage files.<br>
