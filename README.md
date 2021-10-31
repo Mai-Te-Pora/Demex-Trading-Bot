@@ -77,6 +77,9 @@ c1im4cu5 is working with a couple others to add strategies to the main bot. Thes
 - UI based in Flash
 - Cascade order creation for Grid
 - Session timing for Grid
+- Base or Quote profit taking
+- Binance Arbritrage Bot (Coco's bot will be moved. He has agreed to test! Thank you, Coco!)
+- Coinbase Arbritrage Bot (once Atom had been added to the exchange)
 
 You are invited to partake. Please feel free to join the Mai-Te-Pora Telegram community!
 
