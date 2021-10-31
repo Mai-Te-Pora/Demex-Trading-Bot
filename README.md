@@ -14,7 +14,7 @@ sudo apt-get install python3-pip
 sudo apt-get install python3.8-dev
 pip install tradehub
 ```
-Linux Command Line Install Instructions:
+
 If you're having any troubles setting up Python (or already possess a prior python version, please go to the following link for assistance in installing a new version)
 https://tech.serhatteker.com/post/2019-12/upgrade-python38-on-ubuntu/
 
