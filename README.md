@@ -7,9 +7,9 @@ The bot is designed to trade with concurrent access to strategies and websocket 
 ## Installation
 Required: Python 3.8 + <br>
 Use Package Manager pip to install tradehub
-'''bash
+```
 pip install tradehub
-'''
+```
 Please see WindowsAndLinuxInstall document for more details.
 
 ## Setup Authenticated Client
@@ -24,26 +24,20 @@ The strategies section is developed with the intent to add more strategies for u
 Treway is a trianglular bot designed to locate an imbalance between pairs traded on Carbon. Because Carbon lists different trading pairs (Ex: WBTC/USDC, ETH/USDC, WBTC/ETH), Treway can search three trading pairs for an imbalance. If located, it will perform the according trades. The bot is not set to run on download. New upload for a fresh verision is imminent with better instructions for implementation and depth analytics.
 
 ### Grid
-- Grid is available to run upon immediate download (provided mnemonic has been altered). It will take four user inputs:
+Grid is available to run upon immediate download (provided mnemonic has been altered). It will take four user inputs:
 - Pair
 - Buy or Sell
 - Buy/Sell Price
 - Buy/Sell Price
+The bot will continue repeating the trades until cancelled. There are expected enhancements to the bot coming in the future.
 
 ##Enhancements
+c1im4cu5 is working with a couple others to add strategies to the main bot. These include:
+- UI based in Flash
+- Cascade order creation for Grid
+- Session timing for Grid
 
+You are invited to partake. Please feel free to join the Mai-Te-Pora Telegram community!
 
-Running Main File in Parent Folder:<br>
-python main.py (or python3 depending on miniconda3 downlaod)<br>
-
-Treway strategy is already setup (Please check math) to run from the main file as a separate asyncio function. Each bot can be created as a separate function, added to the main function as an asyncio task and gathered for concurrency.<br>
-Note about Treway: It is currently disabled in code.<br>
-
-The Grid Bot/ MM strategy is set to run upon immediate download. A user will only need to change the mnemonic (as stated above) to begin trading!<br>
-Notes about Grid Strategy: <br>
-Pairs MUST be typed exactly! Users are given a list for reference.<br>
-Order quantities should always possess the ones digit (0.01)<br>
-The bot will continue replicating the designated orders until stopped <br>
-If a connection to the websocket is lost, the bot will attempt to cancel all active user orders placed with the bot<br>
-
-Please note that certain strategies may implement more required Python libraries.
+## Contributing
+Pull requests are welcome. For major changes, please open an issue for first to discuss what you would like added.
