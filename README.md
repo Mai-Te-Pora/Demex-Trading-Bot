@@ -20,15 +20,15 @@ You will also need to alter on_connect function in main.py. If you'd like to set
 ## Strategies Section:
 The strategies section is developed with the intent to add more strategies for users of the exchange.  Currently in development, market making bot, Gann predictive intraday strategy and more predictive algorithms based on further building of pair candlestick storage files.<br>
 
-###Treway
+### Treway
 Treway is a trianglular bot designed to locate an imbalance between pairs traded on Carbon. Because Carbon lists different trading pairs (Ex: WBTC/USDC, ETH/USDC, WBTC/ETH), Treway can search three trading pairs for an imbalance. If located, it will perform the according trades. The bot is not set to run on download. New upload for a fresh verision is imminent with better instructions for implementation and depth analytics.
 
-###Grid
--Grid is available to run upon immediate download (provided mnemonic has been altered). It will take four user inputs:
--Pair
--Buy or Sell
--Buy/Sell Price
--Buy/Sell Price
+### Grid
+- Grid is available to run upon immediate download (provided mnemonic has been altered). It will take four user inputs:
+- Pair
+- Buy or Sell
+- Buy/Sell Price
+- Buy/Sell Price
 
 ##Enhancements
 
