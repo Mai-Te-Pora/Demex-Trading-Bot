@@ -87,7 +87,7 @@ def print_markets():
 def print_active_orders():
     _rep = ""
     p = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    with open( p + r"\data_processing\logs\active_orders.json", "r") as read_file:
+    with open( p + r"/data_processing/logs/active_orders.json", "r") as read_file:
                 orders = json.load(read_file)
 
     for i in range(len(orders)):
