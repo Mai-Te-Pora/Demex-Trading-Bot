@@ -1,5 +1,4 @@
-#The Treway bot analysis will attempt to find an imbalance between three specific
-# trading pairs -- swth-usdc, eth-usdc, swth-eth (if imbalance exists in favor of more swth---execute trades [see also - authenticated_client folder])
+import pandas as pd
 import json
 import itertools
 import asyncio
@@ -10,216 +9,513 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from authenticated_client import demex_auth
 from data_processing import SavingRecords
 
+loop = 0
+balances = []
+swth_usdc_orderbook = []
+swth_eth_orderbook = []
+eth_usdc_orderbook = []
+eth_wbtc_orderbook = []
+wbtc_usdc_orderbook = []
 
-class TrewayBot(object):
-    def __init__(self):
-        #Setting up logger
-        self.root = logging.getLogger()
-        self.root.setLevel(logging.INFO)
+usdc_max_quantity = 400
+wbtc_max_quantity = 0.01
+swth_max_quantity = 50000
+eth_max_quantity = 0.125
 
-        self.handler = logging.StreamHandler(sys.stdout)
-        self.handler.setLevel(logging.INFO)
-        self.formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-        self.handler.setFormatter(self.formatter)
-        self.root.addHandler(self.handler)
-        
-        self.loop = 0
-        self.swth_usdc_orderbook = []
-        self.swth_eth_orderbook = []
-        self.eth_usdc_orderbook = []
+swth_min_quantity_extra = 180
+eth_min_quantity_extra = 0.00025
 
-        self.usdc_max_quantity = 210
+dem_client = demex_auth.auth_client()
 
-        self.swth_min_quantity_extra = 180
-        self.eth_min_quantity_extra = .0025
-        self.dem_client = demex_auth.dem_client()
+logger = logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger()
+p = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-    def __call__(self):
-        self.main()
+def analyze_wbtc(wbtc_max_quantity, over):
+    wbtc_max_quantity = wbtc_max_quantity
+    over = over
 
-    def analyze_records(self):
-        p = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        #Read data in data_processing--storage
-        try:
-            with open( p + r"/data_processing/storage/orderbooks/swth_usdc_orderbook.json", "r") as read_file:
-                self.swth_usdc_orderbook = json.load(read_file)
-            with open(p + r"/data_processing/storage/orderbooks/swth_eth_orderbook.json", "r") as read_file:
-                self.swth_eth_orderbook = json.load(read_file)
-            with open(p + r"./data_processing/storage/orderbooks/eth_usdc_orderbook.json", "r") as read_file:
-                self.eth_usdc_orderbook = json.load(read_file)
-        except:
-            #For whatever reason the documents failed to load. Did you run DemexWebsocketClass.py for a minute or two before
-            #beginning the trading bot? Please see assistance from github/c1im4cu5
-            self.root.warning("Failed to pull data. See Treway.py - def analyze_records")
+    with open(p + r"/data_processing/storage/orderbooks/eth_usdc_orderbook.json", "r") as read_file:
+        eth_usdc_orderbook = pd.read_json(read_file)
+    with open(p + r"/data_processing/storage/orderbooks/eth_wbtc_orderbook.json", "r") as read_file:
+        eth_wbtc_orderbook = pd.read_json(read_file)
+    with open(p + r"/data_processing/storage/orderbooks/wbtc_usdc_orderbook.json", "r") as read_file:
+        wbtc_usdc_orderbook = pd.read_json(read_file)
 
-            if self.loop < 4:
-                time.sleep(5)
-                self.analyze_records()
-                self.loop += 1
-            else:
-                self.root.error("Stopping Attempts at Connection")
-                sys.exit()
-                
-    def swth_usdc_data(self):
+    eth_usdc_orderbook['total'] = eth_usdc_orderbook['quantity'] * eth_usdc_orderbook['price']
+    eth_wbtc_orderbook['total'] = eth_wbtc_orderbook['quantity'] * eth_wbtc_orderbook['price']
+    wbtc_usdc_orderbook['total'] = wbtc_usdc_orderbook['quantity'] * wbtc_usdc_orderbook['price']
 
-        buys = []
-        sells = []
-        for i in range(len(self.swth_usdc_orderbook)):
-            if self.swth_usdc_orderbook[i]['side'] == 'buy':
-                buys.append([self.swth_usdc_orderbook[i]['price'], self.swth_usdc_orderbook[i]['quantity']])
-            elif self.swth_usdc_orderbook[i]['side'] == 'sell':
-                sells.append([self.swth_usdc_orderbook[i]['price'], self.swth_usdc_orderbook[i]['quantity']])
+    #Checking WBTC-USDC (sell), ETH-USDC (Buy), ETH-WBTC (Sell) balance
+    #WBTC-USDC
+    logger.info("Starting WBTC-USDC, ETH-USDC, ETH-WBTC Imbalance Check")
+    logger.info("Starting WBTC Qty: " + str(wbtc_max_quantity))
+    hold_qty = wbtc_max_quantity
+    hold_price = 0
+    paid_percentage = .0025
+    df = wbtc_usdc_orderbook.loc[(wbtc_usdc_orderbook['side'] == 'buy')]
+    df = df.sort_values(by='price', ascending=False)
+    position = 0
+    while hold_qty > 0:
+        if df.iloc[position]['quantity'] <= hold_qty:
+            hold_qty -= df.iloc[position]['quantity']
+            hold_price += df.iloc[position]['total']
+        elif df.iloc[position]['quantity'] > hold_qty:
+            #Document prices for next order
+            hold_price += hold_qty*df.iloc[position]['price']
+            hold_qty = 0
+        position += 1
+    usdc_paid = hold_price*paid_percentage
+    total = hold_price-usdc_paid
+    wbtc_usdc_received = total
 
-        #Sorting Buy orders for ease of quantity and price access
-        buys = [k for k, g in itertools.groupby(sorted(buys))]
+    logger.info("Received USDC Qty: " + str(wbtc_usdc_received))
 
-        #Sorting Sell orders for ease of quantity and price access
-        sells = [k for k, g in itertools.groupby(sorted(sells))]
+    #ETH-USDC
+    hold_qty = wbtc_usdc_received
+    new_hold_qty = 0
+    hold_price = 0
+    df = eth_usdc_orderbook.loc[(eth_usdc_orderbook['side'] == 'sell')]
+    df = df.sort_values(by='price', ascending=True)
+    position = 0
+    while hold_qty > 0:
+        if df.iloc[position]['total'] <= hold_qty:
+            hold_qty -= df.iloc[position]['total']
+            new_hold_qty += df.iloc[position]['quantity']
+            hold_price += df.iloc[position]['total']
+        elif df.iloc[position]['total'] > hold_qty:
+            #Document prices for next order
+            new_hold_qty += hold_qty/df.iloc[position]['price']
+            hold_price += hold_qty
+            hold_qty = 0
+        position += 1
+    eth_paid = new_hold_qty*paid_percentage
+    total = new_hold_qty-eth_paid
+    eth_usdc_received = total
 
-        first_price_sell = sells[0][0]
-        second_price_sell = sells[1][0]
+    logger.info("Received ETH Qty: " + str(eth_usdc_received))
 
-        first_quantity_sell = sells[0][1]
-        second_quantity_sell = sells[1][1]
+    #ETH-WBTC
+    hold_qty = eth_usdc_received
+    hold_price = 0
+    df = eth_wbtc_orderbook.loc[(eth_wbtc_orderbook['side'] == 'buy')]
+    df = df.sort_values(by='price', ascending=False)
+    position = 0
+    while hold_qty > 0:
+        if df.iloc[position]['quantity'] <= hold_qty:
+            hold_qty -= df.iloc[position]['quantity']
+            hold_price += df.iloc[position]['total']
+        elif df.iloc[position]['quantity'] > hold_qty:
+            #Document prices for next order
+            hold_price += hold_qty*df.iloc[position]['price']
+            hold_qty = 0
+        position += 1
+    wbtc_paid = hold_price*paid_percentage
+    total = hold_price-wbtc_paid
+    eth_wbtc_received = total
 
-        first_price_buy = buys[-1][0]
-        second_price_buy = buys[-2][0]
+    logger.info("End Result WBTC Qty: " + str(eth_wbtc_received))
 
-        first_quantity_buy = buys[-1][-1]
-        second_quantity_buy = buys[-2][-1]
+    if (eth_wbtc_received-wbtc_max_quantity) > over:
+        logger.info("Trades Recommended")
+        logger.info("Performing Recommended Trades")
+        dem_client.market_sell(pair='wbtc1_usdc1', quantity=str(wbtc_max_quantity))
+        dem_client.market_buy(pair='eth1_usdc1', quantity=str(wbtc_usdc_received))
+        dem_client.market_sell(pair='eth1_wbtc1', quantity=str(eth_usdc_received))
+    else:
+        logger.info("No Trades Recommended")
+    #Checking ETH-WBTC (sell), ETH-USDC (Sell), WBTC-USDC (Buy) balance
+    #WBTC-USDC
+    logger.info("Starting ETH-WBTC, ETH-USDC, WBTC-USDC Imbalance Check")
+    logger.info("Starting WBTC Qty: " + str(wbtc_max_quantity))
+    hold_qty = wbtc_max_quantity
+    new_hold_qty = 0
+    hold_price = 0
+    df = eth_wbtc_orderbook.loc[(eth_wbtc_orderbook['side'] == 'sell')]
+    df = df.sort_values(by='price', ascending=True)
+    position = 0
+    while hold_qty > 0:
+        if df.iloc[position]['total'] <= hold_qty:
+            hold_qty -= df.iloc[position]['total']
+            new_hold_qty += df.iloc[position]['quantity']
+            #hold_price += df.iloc[position]['total']
+        elif df.iloc[position]['total'] > hold_qty:
+            #Document prices for next order
+            new_hold_qty += hold_qty/df.iloc[position]['price']
+            #hold_price += hold_qty*df.iloc[position]['price']
+            hold_qty = 0
+        position += 1
+    eth_paid = new_hold_qty*paid_percentage
+    total = new_hold_qty-eth_paid
+    eth_wbtc_received = total
+    logger.info("Received ETH Qty: " + str(eth_wbtc_received))
 
-        return first_price_sell, second_price_sell, first_quantity_sell, second_quantity_sell, first_price_buy, second_price_buy, first_quantity_buy, second_quantity_buy
+    #ETH-USDC
+    hold_qty = eth_wbtc_received
+    new_hold_qty = 0
+    hold_price = 0
+    df = eth_usdc_orderbook.loc[(eth_usdc_orderbook['side'] == 'buy')]
+    df = df.sort_values(by='price', ascending=False)
+    position = 0
+    while hold_qty > 0:
+        if df.iloc[position]['quantity'] <= hold_qty:
+            hold_qty -= df.iloc[position]['quantity']
+            new_hold_qty += df.iloc[position]['total']
+        elif df.iloc[position]['quantity'] > hold_qty:
+            #Document prices for next order
+            new_hold_qty += hold_qty*df.iloc[position]['price']
+            hold_qty = 0
+        position += 1
+    eth_paid = new_hold_qty*paid_percentage
+    total = new_hold_qty-eth_paid
+    eth_usdc_received = total
+    logger.info("Received USDC Qty: " + str(eth_usdc_received))
 
-    def eth_usdc_data(self):
+    #WBTC-USDC
+    hold_qty = eth_usdc_received
+    new_hold_qty = 0
+    hold_price = 0
+    df = wbtc_usdc_orderbook.loc[(wbtc_usdc_orderbook['side'] == 'sell')]
+    df = df.sort_values(by='price', ascending=True)
+    position = 0
+    while hold_qty > 0:
+        if df.iloc[position]['total'] <= hold_qty:
+            hold_qty -= df.iloc[position]['total']
+            new_hold_qty += df.iloc[position]['quantity']
+        elif df.iloc[position]['total'] > hold_qty:
+            #Document prices for next order
+            new_hold_qty += hold_qty/df.iloc[position]['price']
+            hold_qty = 0
+        position += 1
+    wbtc_paid = new_hold_qty*paid_percentage
+    total = new_hold_qty-wbtc_paid
+    wbtc_usdc_received = total
+    logger.info("Received WBTC Qty: " + str(wbtc_usdc_received))
 
-        buys = []
-        sells = []
-        for i in range(len(self.eth_usdc_orderbook)):
-            if self.eth_usdc_orderbook[i]['side'] == 'buy':
-                buys.append([self.eth_usdc_orderbook[i]['price'], self.eth_usdc_orderbook[i]['quantity']])
-            elif self.eth_usdc_orderbook[i]['side'] == 'sell':
-                sells.append([self.eth_usdc_orderbook[i]['price'], self.eth_usdc_orderbook[i]['quantity']])
+    if (wbtc_usdc_received - wbtc_max_quantity) > over:
+        logger.info("Trades Recommended")
+        logger.info("Performing Recommended Trades")
+        dem_client.market_buy(pair='eth1_wbtc1', quantity=str(wbtc_max_quantity))
+        dem_client.market_sell(pair='eth1_usdc1', quantity=str(eth_wbtc_received))
+        dem_client.market_buy(pair='wbtc1_usdc1', quantity=str(eth_usdc_received))
+    else:
+        logger.info("No Trades Recommended")
 
-        #Sorting Buy orders for ease of quantity and price access
-        buys = [k for k, g in itertools.groupby(sorted(buys))]
+def analyze_swth(swth_max_quantity, over):
+    swth_max_quantity = swth_max_quantity
+    over = over
 
-        #Sorting Sell orders for ease of quantity and price access
-        sells = [k for k, g in itertools.groupby(sorted(sells))]
+    with open( p + r"/data_processing/storage/orderbooks/swth_usdc_orderbook.json", "r") as read_file:
+        swth_usdc_orderbook = pd.read_json(read_file)
+    with open(p + r"/data_processing/storage/orderbooks/swth_eth_orderbook.json", "r") as read_file:
+        swth_eth_orderbook = pd.read_json(read_file)
+    with open(p + r"/data_processing/storage/orderbooks/eth_usdc_orderbook.json", "r") as read_file:
+        eth_usdc_orderbook = pd.read_json(read_file)
 
-        first_price_sell = sells[0][0]
-        second_price_sell = sells[1][0]
+    swth_usdc_orderbook['total'] = swth_usdc_orderbook['quantity'] * swth_usdc_orderbook['price']
+    swth_eth_orderbook['total'] = swth_eth_orderbook['quantity'] * swth_eth_orderbook['price']
+    eth_usdc_orderbook['total'] = eth_usdc_orderbook['quantity'] * eth_usdc_orderbook['price']
 
-        first_quantity_sell = sells[0][1]
-        second_quantity_sell = sells[1][1]
+    #Checking SWTH-USDC (Sell), ETH-USDC (Buy), SWTH-ETH (Buy)
+    #SWTH-USDC
+    logger.info("Starting SWTH-USDC, ETH-USDC, SWTH-ETH Imbalance Check")
+    logger.info("Starting SWTH Qty: " + str(swth_max_quantity))
+    hold_qty = swth_max_quantity
+    new_hold_qty = 0
+    paid_percentage = 0.0025
+    paid_qty = 0
+    df = swth_usdc_orderbook.loc[(swth_usdc_orderbook['side'] == 'buy')]
+    df = df.sort_values(by='price', ascending=False)
+    position = 0
+    while hold_qty > 0:
+        if df.iloc[position]['quantity'] <= hold_qty:
+            hold_qty -= df.iloc[position]['quantity']
+            new_hold_qty += df.iloc[position]['total']
+        elif df.iloc[position]['quantity'] > hold_qty:
+            new_hold_qty += hold_qty*df.iloc[position]['price']
+            hold_qty = 0
+        position += 1
+    usdc_paid = new_hold_qty*paid_percentage
+    total = new_hold_qty-usdc_paid
+    swth_usdc_received = total
 
-        first_price_buy = buys[-1][0]
-        second_price_buy = buys[-2][0]
+    logger.info("Received USDC Qty: " + str(swth_usdc_received))
 
-        first_quantity_buy = buys[-1][-1]
-        second_quantity_buy = buys[-2][-1]
+    #ETH-USDC
+    hold_qty = swth_usdc_received
+    new_hold_qty = 0
+    df = eth_usdc_orderbook.loc[(eth_usdc_orderbook['side'] == 'sell')]
+    df = df.sort_values(by='price', ascending=True)
+    position = 0
+    while hold_qty > 0:
+        if df.iloc[position]['total'] <= hold_qty:
+            hold_qty -= df.iloc[position]['total']
+            new_hold_qty += df.iloc[position]['quantity']
+        elif df.iloc[position]['total'] > hold_qty:
+            new_hold_qty += hold_qty/df.iloc[position]['price']
+            hold_qty = 0
+        position += 1
+    eth_paid = new_hold_qty*paid_percentage
+    total = new_hold_qty-eth_paid
+    eth_usdc_received = total
 
-        return first_price_sell, second_price_sell, first_quantity_sell, second_quantity_sell, first_price_buy, second_price_buy, first_quantity_buy, second_quantity_buy
+    logger.info("Received ETH Qty: " + str(eth_usdc_received))
 
-    def swth_eth_data(self):
-        buys = []
-        sells = []
-        for i in range(len(self.swth_eth_orderbook)):
-            if self.swth_eth_orderbook[i]['side'] == 'buy':
-                buys.append([self.swth_eth_orderbook[i]['price'], self.swth_eth_orderbook[i]['quantity']])
-            elif self.swth_eth_orderbook[i]['side'] == 'sell':
-                sells.append([self.swth_eth_orderbook[i]['price'], self.swth_eth_orderbook[i]['quantity']])
+    #SWTH-ETH
+    hold_qty = eth_usdc_received
+    new_hold_qty = 0
+    df = swth_eth_orderbook.loc[(swth_eth_orderbook['side'] == 'sell')]
+    df = df.sort_values(by='price', ascending=True)
+    position = 0
+    while hold_qty > 0:
+        if df.iloc[position]['total'] <= hold_qty:
+            hold_qty -= df.iloc[position]['total']
+            new_hold_qty += df.iloc[position]['quantity']
+        elif df.iloc[position]['total'] > hold_qty:
+            new_hold_qty += hold_qty/df.iloc[position]['price']
+            hold_qty = 0
+        position += 1
+    swth_paid = new_hold_qty*paid_percentage
+    total = new_hold_qty-swth_paid
+    swth_eth_received = total
 
-        #Sorting Buy orders for ease of quantity and price access
-        buys = [k for k, g in itertools.groupby(sorted(buys))]
+    logger.info("Received SWTH Qty: " + str(swth_eth_received))
 
-        #Sorting Sell orders for ease of quantity and price access
-        sells = [k for k, g in itertools.groupby(sorted(sells))]
+    if (swth_eth_received - swth_max_quantity) > over:
+        logger.info("Trades Recommended")
+        logger.info("Performing Recommended Trades")
+        dem_client.market_sell(pair='swth_usdc1', quantity=str(swth_max_quantity))
+        dem_client.market_buy(pair='eth1_usdc1', quantity=str(swth_usdc_received))
+        dem_client.market_buy(pair='swth_eth1', quantity=str(eth_usdc_received))
+    else:
+        logger.info("No Trades Recommended")
 
-        first_price_sell = sells[0][0]
-        second_price_sell = sells[1][0]
+    #Checking SWTH-ETH, ETH-USDC, SWTH-USDC
+    #SWTH-ETH
+    logger.info("Starting SWTH-ETH, ETH-USDC, SWTH-USDC Imbalance Check")
+    logger.info("Starting SWTH Qty: " + str(swth_max_quantity))
+    hold_qty = swth_max_quantity
+    new_hold_qty = 0
+    df = swth_eth_orderbook.loc[(swth_eth_orderbook['side'] == 'buy')]
+    df = df.sort_values(by='price', ascending=False)
+    position = 0
+    while hold_qty > 0:
+        if df.iloc[position]['quantity'] <= hold_qty:
+            hold_qty -= df.iloc[position]['quantity']
+            new_hold_qty += df.iloc[position]['total']
+        elif df.iloc[position]['quantity'] > hold_qty:
+            new_hold_qty += hold_qty*df.iloc[position]['price']
+            hold_qty = 0
+        position += 1
+    eth_paid = new_hold_qty*paid_percentage
+    total = new_hold_qty-eth_paid
+    swth_eth_received = total
 
-        first_quantity_sell = sells[0][1]
-        second_quantity_sell = sells[1][1]
+    logger.info("Received ETH Qty: " + str(swth_eth_received))
 
-        first_price_buy = buys[-1][0]
-        second_price_buy = buys[-2][0]
+    #ETH-USDC
+    hold_qty = swth_eth_received
+    new_hold_qty = 0
+    df = eth_usdc_orderbook.loc[(eth_usdc_orderbook['side'] == 'buy')]
+    df = df.sort_values(by='price', ascending=False)
+    position = 0
+    while hold_qty > 0:
+        if df.iloc[position]['quantity'] <= hold_qty:
+            hold_qty -= df.iloc[position]['quantity']
+            new_hold_qty += df.iloc[position]['total']
+        elif df.iloc[position]['quantity'] > hold_qty:
+            new_hold_qty += hold_qty*df.iloc[position]['price']
+            hold_qty = 0
+        position += 1
+    usdc_paid = new_hold_qty*paid_percentage
+    total = new_hold_qty-usdc_paid
+    eth_usdc_received = total
 
-        first_quantity_buy = buys[-1][-1]
-        second_quantity_buy = buys[-2][-1]
+    logger.info("Received USDC Qty: " + str(eth_usdc_received))
 
-        return first_price_sell, second_price_sell, first_quantity_sell, second_quantity_sell, first_price_buy, second_price_buy, first_quantity_buy, second_quantity_buy
+    #SWTH-USDC
+    hold_qty = eth_usdc_received
+    new_hold_qty = 0
+    df = swth_usdc_orderbook.loc[(swth_usdc_orderbook['side'] == 'sell')]
+    df = df.sort_values(by='price', ascending=True)
+    position = 0
+    while hold_qty > 0:
+        if df.iloc[position]['total'] <= hold_qty:
+            hold_qty -= df.iloc[position]['total']
+            new_hold_qty += df.iloc[position]['quantity']
+        elif df.iloc[position]['total'] > hold_qty:
+            new_hold_qty += hold_qty/df.iloc[position]['price']
+            hold_qty = 0
+        position += 1
+    swth_paid = new_hold_qty*paid_percentage
+    total = new_hold_qty-swth_paid
+    swth_usdc_received = total
 
-    def main(self):
-        #run def to pull specified records from storage
-        self.analyze_records()
+    logger.info("Received USDC Qty: " + str(swth_usdc_received))
 
-        se_fps, se_sps, se_fqs, se_sqs, se_fpb, se_spb, se_fqb, se_sqb = self.swth_eth_data()
-        su_fps, su_sps, su_fqs, su_sqs, su_fpb, su_spb, su_fqb, su_sqb = self.swth_usdc_data()
-        eu_fps, eu_sps, eu_fqs, eu_sqs, eu_fpb, eu_spb, eu_fqb, eu_sqb = self.eth_usdc_data()
+    if (swth_usdc_received - swth_max_quantity) > over:
+        logger.info("Trades Recommended")
+        logger.info("Performing Recommended Trades")
+        dem_client.market_sell(pair='swth_eth1', quantity=str(swth_max_quantity))
+        dem_client.market_sell(pair='eth1_usdc1', quantity=str(swth_eth_received))
+        dem_client.market_buy(pair='swth_usdc1', quantity=str(eth_usdc_received))
+    else:
+        logger.info("No Trades Recommended")
 
-        su_max_buy_quantity = round(self.usdc_max_quantity/su_fps)
-        su_max_sell_quantity = round(self.usdc_max_quantity/su_fpb)
+def analyze_eth(eth_max_quantity, over):
+    eth_max_quantity = eth_max_quantity
+    over = over
 
-        eu_max_buy_quantity = round(self.usdc_max_quantity/eu_sps, 3)
-        eu_max_sell_quantity = round(self.usdc_max_quantity/eu_spb, 3)
+    with open( p + r"/data_processing/storage/orderbooks/wbtc_usdc_orderbook.json", "r") as read_file:
+        wbtc_usdc_orderbook = pd.read_json(read_file)
+    with open(p + r"/data_processing/storage/orderbooks/eth_usdc_orderbook.json", "r") as read_file:
+        eth_usdc_orderbook = pd.read_json(read_file)
+    with open(p + r"/data_processing/storage/orderbooks/eth_wbtc_orderbook.json", "r") as read_file:
+        eth_wbtc_orderbook = pd.read_json(read_file)
 
-        se_max_buy_quantity = round(self.usdc_max_quantity*se_fps)
-        se_max_sell_quantity = round(self.usdc_max_quantity*se_fpb)
+    wbtc_usdc_orderbook['total'] = wbtc_usdc_orderbook['quantity'] * wbtc_usdc_orderbook['price']
+    eth_wbtc_orderbook['total'] = eth_wbtc_orderbook['quantity'] * eth_wbtc_orderbook['price']
+    eth_usdc_orderbook['total'] = eth_usdc_orderbook['quantity'] * eth_usdc_orderbook['price']
 
-        #Prices paid for paying and selling into asks/bids to acquire more swth (sell into swth_usdc, buy into eth_usdc, buy into swth_eth)
-        usdc_one = round(su_max_sell_quantity*su_fpb, 2)
-        eu_qty = round(usdc_one/eu_sps, 3)
-        total = round(eu_qty/se_fps)
+    #Checking ETH-WBTC (Sell), WBTC-USDC(Sell), ETH-USDC(Buy)
+    #ETH-WBTC
+    logger.info("Starting ETH-WBTC, WBTC-USDC, ETH-USDC Imbalance Check")
+    logger.info("Starting ETH Qty: " + str(eth_max_quantity))
+    hold_qty = eth_max_quantity
+    new_hold_qty = 0
+    paid_percentage = 0.0025
+    df = eth_wbtc_orderbook.loc[(eth_wbtc_orderbook['side'] == 'buy')]
+    df = df.sort_values(by='price', ascending=False)
+    position = 0
+    while hold_qty > 0:
+        if df.iloc[position]['quantity'] <= hold_qty:
+            hold_qty -= df.iloc[position]['quantity']
+            new_hold_qty += df.iloc[position]['total']
+        elif df.iloc[position]['quantity'] > hold_qty:
+            new_hold_qty += hold_qty*df.iloc[position]['price']
+            hold_qty = 0
+        position += 1
+    wbtc_paid = new_hold_qty*paid_percentage
+    total = new_hold_qty-wbtc_paid
+    eth_wbtc_received = total
 
-        if (total - su_max_sell_quantity) >= self.swth_min_quantity_extra:
-            root.info("Trade Recommended (swth_usdc, eth_usdc, swth_eth)")
-            self.dem_client.market_sell(pair='swth_usdc1', quantity=str(su_max_sell_quantity))
-            self.dem_client.market_buy(pair='eth1_usdc1', quantity=str(eu_qty))
-            self.dem_client.market_buy(pair='swth_eth1', quantity=str(total))
-            self.root.info("Trades Performed: Check Demex Log")
-            self.root.info("Sleeping for ten minutes before restarting.")
-            time.sleep(600)
-            self.main()
-        else:
-            self.root.info("NO Trade Recommended (swth_usdc, eth_usdc, swth_eth)")
+    logger.info("Received WBTC Qty: " + str(eth_wbtc_received))
 
-        #Prices paid for paying and selling into asks/bids to acquire more swth (sell eth_usdc, buy swth_usdc, sell swth_eth )
-        usdc_one = round(eu_max_sell_quantity*eu_spb, 2)
-        su_qty = round(usdc_one/su_fps)
-        total = round(su_qty*se_fpb, 3)
-        total_buy = round(su_qty/se_fpb)
+    hold_qty = eth_wbtc_received
+    new_hold_qty = 0
+    df = wbtc_usdc_orderbook.loc[(wbtc_usdc_orderbook['side'] == 'buy')]
+    df = df.sort_values(by='price', ascending=False)
+    position = 0
+    while hold_qty > 0:
+        if df.iloc[position]['quantity'] <= hold_qty:
+            hold_qty -= df.iloc[position]['quantity']
+            new_hold_qty += df.iloc[position]['total']
+        elif df.iloc[position]['quantity'] > hold_qty:
+            new_hold_qty += hold_qty*df.iloc[position]['price']
+            hold_qty = 0
+        position += 1
+    usdc_paid = new_hold_qty*paid_percentage
+    total = new_hold_qty-usdc_paid
+    wbtc_usdc_received = total
 
+    logger.info("Received WBTC Qty: " + str(wbtc_usdc_received))
 
-        if (eu_max_sell_quantity - su_qty) >= self.eth_min_quantity_extra:
-            self.root.info("Trade Recommended (eth_usdc, swth_usdc, swth_eth)")
-            self.dem_client.market_sell(pair='eth1_usdc1', quantity=str(eu_max_sell_quantity))
-            self.dem_client.market_buy(pair='swth_usdc1', quantity=str(su_qty))
-            self.dem_client.market_sell(pair='swth_eth1', quantity=str(su_qty))
-            self.root.info("Trades Performed: Check Demex Log")
-            self.root.info("Sleeping for ten minutes before restarting.")
-            time.sleep(600)
-            self.main()
-        else:
-            self.root.info("NO Trade Recommended (eth_usdc, swth_usdc, swth_eth)")
+    hold_qty = wbtc_usdc_received
+    new_hold_qty = 0
+    df = eth_usdc_orderbook.loc[(eth_usdc_orderbook['side'] == 'sell')]
+    df = df.sort_values(by='price', ascending=True)
+    position = 0
+    while hold_qty > 0:
+        if df.iloc[position]['total'] <= hold_qty:
+            hold_qty -= df.iloc[position]['total']
+            new_hold_qty += df.iloc[position]['quantity']
+        elif df.iloc[position]['total'] > hold_qty:
+            new_hold_qty += hold_qty/df.iloc[position]['price']
+            hold_qty = 0
+        position += 1
+    eth_paid = new_hold_qty*paid_percentage
+    total = new_hold_qty-eth_paid
+    eth_usdc_received = total
 
-        #Prices paid for paying and selling into asks/bids to acquire more swth (swth_eth, eth_usdc, swth_usdc)
-        eu_qty = round(su_max_sell_quantity*se_fpb, 3)
-        usdc_one = round(eu_qty*eu_spb)
-        total = round(usdc_one/su_fps)
+    logger.info("Received ETH Qty: " + str(eth_usdc_received))
 
+    if (eth_usdc_received - eth_max_quantity) > over:
+        logger.info("Trades Recommended")
+        logger.info("Performing Recommended Trades")
+        dem_client.market_sell(pair='eth1_wbtc1', quantity=str(eth_max_quantity))
+        dem_client.market_sell(pair='wbtc1_usdc1', quantity=str(eth_wbtc_received))
+        dem_client.market_buy(pair='eth1_usdc1', quantity=str(wbtc_usdc_received))
+    else:
+        logger.info("No Trades Recommended")
 
-        if (total - su_max_sell_quantity) >= self.eth_min_quantity_extra:
-            root.info("Trade Recommended (swth_eth, eth_usdc, swth_usdc)")
-            self.dem_client.market_sell(pair='swth_eth1', quantity=str(su_max_sell_quantity))
-            self.dem_client.market_sell(pair='eth1_usdc1', quantity=str(eu_qty))
-            self.dem_client.market_buy(pair='swth_usdc1', quantity=str(total))
-            self.root.info("Trades Performed: Check Demex Log")
-            self.root.info("Sleeping for ten minutes before restarting.")
-            time.sleep(600)
-            self.main()
-        else:
-            self.root.info("NO Trade Recommended (swth_eth, eth_usdc, swth_usdc)")
-        #print('{0:.10f}'.format(se_fpb))
+    #Checking ETH-USDC (Sell), WBTC-USDC(Buy), ETH-WBTC(Buy)
+    #ETH-USDC
+    logger.info("Starting ETH-USDC, WBTC-USDC, ETH-WBTC Imbalance Check")
+    logger.info("Starting ETH Qty: " + str(eth_max_quantity))
+    hold_qty = eth_max_quantity
+    new_hold_qty = 0
+    df = eth_usdc_orderbook.loc[(eth_usdc_orderbook['side'] == 'buy')]
+    df = df.sort_values(by='price', ascending=False)
+    position = 0
+    while hold_qty > 0:
+        if df.iloc[position]['quantity'] <= hold_qty:
+            hold_qty -= df.iloc[position]['quantity']
+            new_hold_qty += df.iloc[position]['total']
+        elif df.iloc[position]['quantity'] > hold_qty:
+            new_hold_qty += hold_qty*df.iloc[position]['price']
+            hold_qty = 0
+        position += 1
+    usdc_paid = new_hold_qty*paid_percentage
+    total = new_hold_qty-usdc_paid
+    eth_usdc_received = total
 
-if __name__ == "__main__":
-    objName = TrewayBot().main()
+    logger.info("Received USDC Qty: " + str(eth_usdc_received))
+
+    #WBTC-USDC
+    hold_qty = eth_usdc_received
+    new_hold_qty = 0
+    df = wbtc_usdc_orderbook.loc[(wbtc_usdc_orderbook['side'] == 'sell')]
+    df = df.sort_values(by='price', ascending=True)
+    position = 0
+    while hold_qty > 0:
+        if df.iloc[position]['total'] <= hold_qty:
+            hold_qty -= df.iloc[position]['total']
+            new_hold_qty += df.iloc[position]['quantity']
+        elif df.iloc[position]['total'] > hold_qty:
+            new_hold_qty += hold_qty/df.iloc[position]['price']
+            hold_qty = 0
+        position += 1
+    wbtc_paid = new_hold_qty*paid_percentage
+    total = new_hold_qty-wbtc_paid
+    wbtc_usdc_received = total
+
+    logger.info("Received WBTC Qty: " + str(wbtc_usdc_received))
+
+    #ETH-WBTC
+    hold_qty = wbtc_usdc_received
+    new_hold_qty = 0
+    df = eth_wbtc_orderbook.loc[(eth_wbtc_orderbook['side'] == 'sell')]
+    df = df.sort_values(by='price', ascending=True)
+    position = 0
+    while hold_qty > 0:
+        if df.iloc[position]['total'] <= hold_qty:
+            hold_qty -= df.iloc[position]['total']
+            new_hold_qty += df.iloc[position]['quantity']
+        elif df.iloc[position]['total'] > hold_qty:
+            new_hold_qty += hold_qty/df.iloc[position]['price']
+            hold_qty = 0
+        position += 1
+    eth_paid = new_hold_qty*paid_percentage
+    total = new_hold_qty-eth_paid
+    eth_wbtc_received = total
+
+    logger.info("Received ETH Qty: " + str(eth_wbtc_received))
+
+    if (eth_wbtc_received - eth_max_quantity) > over:
+        logger.info("Trades Recommended")
+        logger.info("Performing Recommended Trades")
+        dem_client.market_sell(pair='eth1_usdc1', quantity=str(eth_max_quantity))
+        dem_client.market_buy(pair='wbtc1_usdc1', quantity=str(eth_usdc_received))
+        dem_client.market_buy(pair='eth1_wbtc1', quantity=str(wbtc_usdc_received))
+    else:
+        logger.info("No Trades Recommended")
