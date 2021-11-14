@@ -235,7 +235,7 @@ def user_parameters():
     while more == 'yes':
         p = user_order()
         user_orders.append(p)
-        more = input("Would you like to cre ate another order (yes or no): ")
+        more = input("Would you like to create another order (yes or no): ")
     save_potential_orders(user_orders)
     question_hub()
 
