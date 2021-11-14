@@ -94,6 +94,9 @@ Grid has been completely rebuilt! Novice and experienced users were considered i
 - Ability to print current list of potential orders
 - Ability to start over
 
+Notes:
+If you are choosing auto order creation, please be aware of rounding. Demex offers tokens in different digit depths. Creation of Grid was difficult due to this feature of the exchange. When uploading a new order, Demex will automatically round the price and/or quantity of a token. It may cause slight variations in the total amount calculated for price and quantity.
+
 ## Enhancements
 c1im4cu5 is working with a couple others to add strategies to the main bot. These include:
 - Session timing for Grid
