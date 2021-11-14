@@ -70,6 +70,7 @@ Enhancements have been added to include depth analytics. Depth analytics allows 
 - Purchase Lot Three for 100 at 0.12 for a total of 12.00 USDC
 
 There are three available analytics (SWTH, WBTC or ETH) functions. With each movement between the pairs, Treway is calculating the amount of tokens based up two initial inputs. 
+
 -The first input is a total amount of the analytics token. From this input, Treway will calculate the appropriate amount of tokens for each of the secondary tokens.
 -The second input is a total amount of overage from the token imbalance check. 
 -Notes to input:
