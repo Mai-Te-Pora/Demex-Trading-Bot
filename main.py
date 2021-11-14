@@ -11,7 +11,6 @@ from data_processing import CancelOrders
 from data_processing import *
 from strategies import Treway
 from strategies import Grid
-from strategies import Grid2
 from authenticated_client import demex_auth
 
 
