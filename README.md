@@ -90,20 +90,18 @@ pip install pandas
 ```
 
 ### Grid
-Grid is available to run upon immediate download (provided mnemonic has been altered). It will take four user inputs:
-- Pair
-- Buy or Sell
-- Buy/Sell Price
-- Buy/Sell Price
-
-The bot will continue repeating the trades until cancelled. There are expected enhancements to the bot coming in the future.
+Grid has been completely rebuilt! Novice and experienced users were considered in the build process. Here are the enhancements:
+- Sets order creation (Min = 3, Max = 16)
+- Base and quote profit taking
+- Linear versus cascade order creation
+- Better visual printing experience for user
+- Ability to reload data in case of websocket timeout/error (or for more experienced users....uploading their own list of dicts)
+- Ability to print current list of potential orders
+- Ability to start over
 
 ## Enhancements
 c1im4cu5 is working with a couple others to add strategies to the main bot. These include:
-- UI based in Flash
-- Cascade order creation for Grid
 - Session timing for Grid
-- Base or Quote profit taking
 - Binance Arbritrage Bot (Coco's bot will be moved. He has agreed to test! Thank you, Coco!)
 - Coinbase Arbritrage Bot (once Atom had been added to the exchange)
 
