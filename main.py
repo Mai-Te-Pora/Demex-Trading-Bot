@@ -148,7 +148,7 @@ async def main():
     orders = []
 
     #Print any active orders (FOR EXPERIENCED USERS)
-    Grid2.print_active_orders()
+    Grid.print_active_orders()
 
     loading_user = input("Please ignore this request unless you are an experience user. The websocket will, at times, lose connection. Existing orders are stored in a json file at '/data_processing/logs/active_orders.json'. This file is a list of dicts. Users can freely adjust the parameters of this file, load them or just reload exisiting acitive orders. If you possessed active orders on file, they would have printed out above this message. If so, you can restart the bot to continue monitoring those orders.  Would you like to monitor old orders or generate new orders (old/new): ")
     if loading_user == 'new':
