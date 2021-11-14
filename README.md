@@ -81,6 +81,8 @@ Treway has been miminally tested. While it performs market orders in succession 
 
 Taker fees are considered! While it will take these fees into consideration, it will NOT attempt to make them up. The user is expected to understand this concept prior to execution. The user should make sure to input slightly higher quantities in "Input Two" of the function.
 
+Users should understand the bot will create and execute market orders. If another user of the exchange places an order prior to your order, there is a chance of losing tokens rather than gaining; which is the nature of trading. In order to help mitigate this possibility, the bot does not react to orderbook events. It will check the orderbook at an interval of the users choosing to impartially attempt to locate an imbalance.
+
 
 ### Grid
 Grid is available to run upon immediate download (provided mnemonic has been altered). It will take four user inputs:
