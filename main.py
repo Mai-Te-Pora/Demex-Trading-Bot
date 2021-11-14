@@ -66,7 +66,7 @@ async def on_connect():
                                                 #f"books.{'swth_eth1'}",
                                                 #f"books.{'swth_busd1'}",
                                                 #f"candlesticks.{'swth_usdc1'}.{15}",
-                                                #f"balances.{'ENTER YOUR WALLET ADDRESS HERE'}",
+                                                #f"balances.{address}",
                                                 f"orders.{address}"])
 
 #Receiving feed from websocket
