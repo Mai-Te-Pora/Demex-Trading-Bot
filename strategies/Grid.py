@@ -167,7 +167,6 @@ def user_order():
                     'status': status,
                     'profit': profit,
                     'p_profit': "0",
-                    '_delete': 'No'
                 }
 
         elif profit == "base":
@@ -185,7 +184,6 @@ def user_order():
                     'status': status,
                     'profit': profit,
                     'p_profit': "0",
-                    '_delete': 'No'
                 }
 
 
@@ -204,7 +202,6 @@ def user_order():
                     'status': status,
                     'profit': profit,
                     'p_profit': "0",
-                    '_delete': 'No'
                 }
 
         elif profit == "base":
@@ -222,7 +219,6 @@ def user_order():
                     'status': status,
                     'profit': profit,
                     'p_profit': "0",
-                    '_delete': 'No'
                     }
 
     return choices
@@ -308,7 +304,6 @@ def auto_build_orders(user_p):
                     'status': status,
                     'profit': p['profit'],
                     'p_profit': p['p_profit'],
-                    '_delete': 'No'
                     }
                 buy_price = buy_price-(buy_price*p['p_spacing'])
                 sell_price = buy_price+(buy_price*p['p_profit'])
@@ -335,7 +330,6 @@ def auto_build_orders(user_p):
                     'status': status,
                     'profit': p['profit'],
                     'p_profit': p['p_profit'],
-                    '_delete': 'No'
                     }
                 buy_price = buy_price-(buy_price*p['p_spacing'])
                 sell_price = buy_price+(buy_price*p['p_profit'])
@@ -363,7 +357,6 @@ def auto_build_orders(user_p):
                     'status': status,
                     'profit': p['profit'],
                     'p_profit': p['p_profit'],
-                    '_delete': 'No'
                     }
                 sell_price = sell_price+(sell_price*p['p_spacing'])
                 buy_price = sell_price-(sell_price*p['p_profit'])
@@ -390,7 +383,6 @@ def auto_build_orders(user_p):
                     'status': status,
                     'profit': p['profit'],
                     'p_profit': p['p_profit'],
-                    '_delete': 'No'
                     }
                 sell_price = sell_price+(sell_price*p['p_spacing'])
                 buy_price = sell_price-(sell_price*p['p_profit'])
