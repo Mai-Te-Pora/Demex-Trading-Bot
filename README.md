@@ -79,7 +79,7 @@ There are three available analytics (SWTH, WBTC or ETH) functions. With each mov
 
 Treway has been miminally tested. While it performs market orders in succession with correction, c1im4cu5 has not tested performance without possessing all quantities in advance of operation. Treway is designed to trade in succession to acquire more tokens at the end of the session. In theory, a user should only need the starting token for the given function. This has not been tested. Starting quantities for all tokens were always in possession prior to execution.
 
-Taker fees are considered! While it will take these fees into consideration, it will NOT attempt to make them up. The user is expected to understand this concept prior to execution. The user should make sure to input slightly higher quantities in "Input Two" of the function.
+Taker fees are considered! While it will take these fees into consideration, it will not attempt to make them up. The user is expected to understand this concept prior to execution. The user should make sure to input slightly higher quantities in "Input Two" of the function.
 
 Users should understand the bot will create and execute market orders. If another user of the exchange places an order prior to your order, there is a chance of losing tokens rather than gaining; which is the nature of trading. In order to help mitigate this possibility, the bot does not react to orderbook events. It will check the orderbook at an interval of the users choosing to impartially attempt to locate an imbalance.
 
