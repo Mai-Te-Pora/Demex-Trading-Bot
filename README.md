@@ -12,8 +12,10 @@ sudo apt-get update
 sudo apt-get install python3.8
 sudo apt-get install python3-pip
 sudo apt-get install python3.8-dev
-pip install tradehub
-pip install pandas
+pip3 install tradehub
+pip3 install cython
+pip3 install numpy
+pip3 install pandas
 ```
 
 If you're having any troubles setting up Python (or already possess a prior python version, please go to the following link for assistance in installing a new version)
