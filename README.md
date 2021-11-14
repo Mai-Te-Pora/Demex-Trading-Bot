@@ -83,6 +83,11 @@ Taker fees are considered! While it will take these fees into consideration, it 
 
 Users should understand the bot will create and execute market orders. If another user of the exchange places an order prior to your order, there is a chance of losing tokens rather than gaining; which is the nature of trading. In order to help mitigate this possibility, the bot does not react to orderbook events. It will check the orderbook at an interval of the users choosing to impartially attempt to locate an imbalance.
 
+Lastly, in order to enact Treway, users will need to have Pandas installed. This can be done with the following Linux command:
+
+```
+pip install pandas
+```
 
 ### Grid
 Grid is available to run upon immediate download (provided mnemonic has been altered). It will take four user inputs:
