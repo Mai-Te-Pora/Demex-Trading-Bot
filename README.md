@@ -73,9 +73,9 @@ There are three available analytics (SWTH, WBTC or ETH) functions. With each mov
 
 - The first input is a total amount of the analytics token. From this input, Treway will calculate the appropriate amount of tokens for each of the secondary tokens.
 - The second input is a total amount of overage from the token imbalance check. 
-- Notes to input:
--- Users should consider both inputs as the same token; which is appropriately named within the analytics function
--- Always remember to include the ones digit (0.01)
+- Notes
+- - Users should consider both inputs as the same token; which is appropriately named within the analytics function 
+- - Always remember to include the ones digit (0.01)
 
 Treway has been miminally tested. While it performs market orders in succession with correction, c1im4cu5 has not tested performance without possessing all quantities in advance of operation. Treway is designed to trade in succession to acquire more tokens at the end of the session. In theory, a user should only need the starting token for the given function. This has not been tested. Starting quantities for all tokens were always in possession prior to execution.
 
