@@ -61,7 +61,25 @@ python3 main.py
 The strategies section is developed with the intent to add more strategies for users of the exchange.<br>
 
 ### Treway
-Treway is a trianglular bot designed to locate an imbalance between pairs traded on Carbon. Because Carbon lists different trading pairs (Ex: WBTC/USDC, ETH/USDC, WBTC/ETH), Treway can search three trading pairs for an imbalance. If located, it will perform the according trades. The bot is not set to run on download. New upload for a fresh verision is imminent with better instructions for implementation and depth analytics.
+Treway is a trianglular bot designed to locate an imbalance between pairs traded on Carbon. Because Carbon lists different trading pairs (Ex: WBTC/USDC, ETH/USDC, WBTC/ETH), Treway can search three trading pairs for an imbalance. If located, it will perform the according trades. The bot is not set to run on download. 
+
+Enhancements have been added to include depth analytics. Depth analytics allows the bot to consider the quantity of tokens and price. Here is a quick example:
+
+- Purchase Lot One for 25 @ 0.10 for a total of 2.50 USDC
+- Purchase Lot Two for 50 @ 0.11 for a total of 5.50 USDC
+- Purchase Lot Three for 100 at 0.12 for a total of 12.00 USDC
+
+There are three available analytics (SWTH, WBTC or ETH) functions. With each movement between the pairs, Treway is calculating the amount of tokens based up two initial inputs. 
+-The first input is a total amount of the analytics token. From this input, Treway will calculate the appropriate amount of tokens for each of the secondary tokens.
+-The second input is a total amount of overage from the token imbalance check. 
+-Notes to input:
+--Users should consider both inputs as the same token; which is appropriately named within the analytics function
+--Always remember to include the ones digit (0.01)
+
+Treway has been miminally tested. While it performs market orders in succession with correction, c1im4cu5 has not tested performance without possessing all quantities in advance of operation. Treway is designed to trade in succession to acquire more tokens at the end of the session. In theory, a user should only need the starting token for the given function. This has not been tested. Starting quantities for all tokens were always in possession prior to execution.
+
+Taker fees are considered! While it will take these fees into consideration, it will NOT attempt to make them up. The user is expected to understand this concept prior to execution. The user should make sure to input slightly higher quantities in "Input Two" of the function.
+
 
 ### Grid
 Grid is available to run upon immediate download (provided mnemonic has been altered). It will take four user inputs:
