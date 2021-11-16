@@ -3,6 +3,7 @@ from tradehub.authenticated_client import AuthenticatedClient
 from tradehub.public_account_client import PublicClient
 from tradehub.wallet import Wallet
 
+#Mnemonic should be entered in lowercase lettering
 mnemonic='ENTER YOUR MNEMONIC HERE FOR CONNECTION TO TRADEHUB'
 
 def dem_client():
