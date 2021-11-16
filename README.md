@@ -38,8 +38,9 @@ cd Demex-Trading-Bot
 cd authenticated_client
 ```
 
-- Open python file to alter mnemonic (Note performing this line of code will open a text editor in the terminal window. You will need to change the section of the document that looks like this:
+- Open python file to alter mnemonic (Note performing this line of code will open a text editor in the terminal window). You will need to change the section of the document that looks like this:
  - mnemonic='ENTER YOUR MNEMONIC HERE FOR CONNECTION TO TRADEHUB'
+ - While the dictation is written in capital letters to grab your attention, your mnemonic should be entered in all lowercase lettering
  - You will want to enter your mnemonic with spaces between the parenthesis
  - After alterations, please make sure to save it!<br>
 ```
