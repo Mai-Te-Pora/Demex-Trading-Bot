@@ -459,6 +459,8 @@ def monitor_limit_orders(records):
     new_order = {}
     _rep = ""
 
+    dem_client = demex_auth.auth_client()
+        
     p = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     #Read data in data_processing--storage
     try:
@@ -494,6 +496,7 @@ def process_closed_order(order):
 
     order_id = ''
     status = 'open'
+    dem_client = demex_auth.auth_client()
 
     p = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     #Check if existing orders in closed_orders.json in logs folder
