@@ -293,7 +293,7 @@ def auto_build_orders(user_p):
                     qty = round((p['total_quantity']*slopes[slope_count][count]), 5)
                 count += 1
                 choices = {
-                    'pair': p['market'],
+                    'pair': p['pair'],
                     'order_type': "limit",
                     'buy_quantity': str(qty),
                     'sell_quantity': str(qty),
