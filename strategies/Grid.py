@@ -72,17 +72,22 @@ def print_potential_orders():
     print(_rep)
 
 def print_markets():
-    _rep = ""
     markets = demex_auth.p_client().get_markets()
 
+    print("\n---------Spot Markets--------------")
     for i in range(len(markets)):
-        _rep += "=====================================================================\n"
-        _rep += "Market: " + markets[i]['name'] + "\n"
-        _rep += "Market Type: " + markets[i]['market_type'] + "\n"
-        _rep += "Minimum Quantity: " + markets[i]['min_quantity'] + "\n"
-        _rep += "Activity Status: " + str(markets[i]['is_active']) + "\n"
-        _rep += "=====================================================================\n\n"
-    print(_rep)
+        if markets[i]['market_type'] == "spot":
+            if markets[i]['name'] == 'lkt1_lkt.bep20':
+                pass
+            else:
+                print("Market: " + markets[i]['name'])
+
+    print("\n---------Futures Markets--------------")
+    for i in range(len(markets)):
+        if markets[i]['market_type'] == "futures":
+            if markets[i]['is_active'] == True:
+                print("Market: " + markets[i]['name'])
+    print('\n\n')
 
 def print_active_orders():
     _rep = ""
