@@ -108,6 +108,20 @@ def print_active_orders():
         _rep += "=====================================================================\n\n"
     print(_rep)
 
+def print_user_order(order):
+    order = order
+    _rep = ""
+    _rep += "\n=====================================================================\n"
+    _rep += "Market: " + order['pair'] + "\n"
+    _rep += "Side: " + order['side'] + "\n"
+    _rep += "Buy Price: " + order['buy_price'] + "\n"
+    _rep += "Buy Quantity: " + order['buy_quantity'] + "\n"
+    _rep += "Sell Price: " + order['sell_price'] + "\n"
+    _rep += "Sell Quantity: " + order['sell_quantity'] + "\n"
+    _rep += "Profit: " + order['profit'] + "\n"
+    _rep += "=====================================================================\n\n"
+    print(_rep)
+
 def get_active_orders():
     p = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     with open( p + r"/data_processing/logs/potential_orders.json", "r") as read_file:
@@ -231,11 +245,21 @@ def user_order():
 def user_parameters():
     user_orders = []
     p = user_order()
-    user_orders.append(p)
+    print_user_order(p)
+    confirm_p = input("Would you like to keep this order for generation on Demex (yes/no)? ")
+    if confirm_p == "yes":
+        user_orders.append(p)
+    if confirm_p == "no":
+        pass
     more = input("Would you like to create another order (yes or no): ")
     while more == 'yes':
         p = user_order()
-        user_orders.append(p)
+        print_user_order(p)
+        confirm_p = input("Would you like to keep this order for generation on Demex (yes/no)? ")
+        if confirm_p == "yes":
+            user_orders.append(p)
+        if confirm_p == "no":
+            pass
         more = input("Would you like to create another order (yes or no): ")
     save_potential_orders(user_orders)
     question_hub()
